@@ -1,0 +1,3 @@
+[submodule "deps/zig-http"]
+	path = deps/zig-http
+	url = https://github.com/kapricorn-media/zig-http.git

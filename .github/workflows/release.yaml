@@ -1,0 +1,32 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  release_x86_64_linux:
+    runs-on: [self-hosted, cloud]
+    timeout-minutes: 5
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: build
+        run: ~/zig-stable/zig build -Drelease-fast=true -Dtarget=x86_64-linux
+
+      - name: rename
+        run: mv zig-out ci
+
+      - name: zip
+        run: tar -czf ci.tar.gz ci
+
+      - name: copy
+        run: cp ci.tar.gz ~/ci/builds/ci/ci`date '+%s'`.tar.gz
