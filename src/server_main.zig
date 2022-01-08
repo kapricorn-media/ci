@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 
 const http = @import("http-common");
@@ -5,6 +6,13 @@ const server = @import("http-server");
 
 const SERVER_IP = "0.0.0.0";
 const PATH_BUILDS = "builds";
+
+pub const log_level: std.log.Level = switch (builtin.mode) {
+    .Debug => .debug,
+    .ReleaseSafe => .info,
+    .ReleaseFast => .info,
+    .ReleaseSmall => .info,
+};
 
 const ServerCallbackError = server.Writer.Error || error {InternalServerError};
 

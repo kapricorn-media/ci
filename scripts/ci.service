@@ -1,0 +1,10 @@
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/usr/bin/ci
+ExecStart=/usr/bin/ci/ci 443 /etc/letsencrypt/live/ci-1.kapricornmedia.com/fullchain.pem /etc/letsencrypt/live/ci-1.kapricornmedia.com/privkey.pem
