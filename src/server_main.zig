@@ -20,14 +20,35 @@ const ServerState = struct {
     allocator: std.mem.Allocator,
 };
 
+fn onBadFile(writer: server.Writer, fileName: []const u8, err: anyerror) !void
+{
+    try std.fmt.format(writer, "<p>ERROR <b>{}</b>, BAD FILE <b>{s}</b></p>", .{err, fileName});
+}
+
 fn serverCallback(
     state: *ServerState,
     request: *const server.Request,
     writer: server.Writer) !void
 {
+    const allocator = state.allocator;
+
     if (std.mem.eql(u8, request.uri, "/")) {
         try server.writeCode(writer, ._200);
         try server.writeEndHeader(writer);
+
+        const BuildEntry = struct {
+            fileName: []const u8,
+            timestamp: u64,
+
+            const Self = @This();
+
+            fn greaterThan(_: void, lhs: Self, rhs: Self) bool
+            {
+                return lhs.timestamp > rhs.timestamp;
+            }
+        };
+        var entries = std.ArrayList(BuildEntry).init(allocator);
+        defer entries.deinit();
 
         var dir = try std.fs.cwd().openDir(PATH_BUILDS, .{.iterate = true});
         defer dir.close();
@@ -41,11 +62,40 @@ fn serverCallback(
             var dir2 = try dir.openDir(entry.name, .{.iterate = true});
             defer dir2.close();
             var it2 = dir2.iterate();
+
+            for (entries.items) |e| {
+                allocator.free(e.fileName);
+            }
+            entries.clearRetainingCapacity();
+
             while (try it2.next()) |entry2| {
                 if (entry2.kind != .File) {
                     continue;
                 }
-                try std.fmt.format(writer, "<p><a href=\"{s}/{s}\">{s}</a></p>", .{entry.name, entry2.name, entry2.name});
+                var nameSplit = std.mem.split(u8, entry2.name, ".");
+                _ = nameSplit.next() orelse {
+                    try onBadFile(writer, entry2.name, error.NoSplitFirst);
+                    continue;
+                };
+                const timestampString = nameSplit.next() orelse {
+                    try onBadFile(writer, entry2.name, error.NoSplitSecond);
+                    continue;
+                };
+                const timestamp = std.fmt.parseUnsigned(u64, timestampString, 10) catch |err| {
+                    try onBadFile(writer, entry2.name, err);
+                    continue;
+                };
+
+                const buildEntry = BuildEntry {
+                    .fileName = try allocator.dupe(u8, entry2.name),
+                    .timestamp = timestamp,
+                };
+                try entries.append(buildEntry);
+            }
+
+            std.sort.sort(BuildEntry, entries.items, {}, BuildEntry.greaterThan);
+            for (entries.items) |e| {
+                try std.fmt.format(writer, "<p><a href=\"{s}/{s}\">{s}</a></p>", .{entry.name, e.fileName, e.fileName});
             }
         }
     } else {

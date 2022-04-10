@@ -7,10 +7,12 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: "6 5 * * *"
 
 jobs:
   verify:
-    runs-on: [self-hosted, cloud]
+    runs-on: [self-hosted, verify]
     timeout-minutes: 5
 
     steps:

@@ -10,7 +10,7 @@ on:
 
 jobs:
   release_x86_64_linux:
-    runs-on: [self-hosted, cloud]
+    runs-on: [self-hosted, release]
     timeout-minutes: 5
 
     steps:
@@ -29,4 +29,4 @@ jobs:
         run: tar -czf ci.tar.gz ci
 
       - name: copy
-        run: cp ci.tar.gz ~/ci/builds/ci/ci`date '+%s'`.tar.gz
+        run: cp ci.tar.gz ~/ci/builds/ci/ci.`date '+%s'`.tar.gz
