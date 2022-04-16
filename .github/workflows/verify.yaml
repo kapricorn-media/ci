@@ -12,17 +12,4 @@ on:
 
 jobs:
   verify:
-    runs-on: [self-hosted, verify]
-    timeout-minutes: 5
-
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-
-      - name: build
-        run: ~/zig-stable/zig build
-
-      - name: test
-        run: ~/zig-stable/zig build test
+    uses: kapricorn-media/github/.github/workflows/verify.yaml@main
