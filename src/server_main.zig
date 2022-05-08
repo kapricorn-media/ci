@@ -27,7 +27,7 @@ fn onBadFile(writer: server.Writer, fileName: []const u8, err: anyerror) !void
 
 fn serverCallback(
     state: *ServerState,
-    request: *const server.Request,
+    request: server.Request,
     writer: server.Writer) !void
 {
     const allocator = state.allocator;
@@ -105,7 +105,7 @@ fn serverCallback(
 
 fn serverCallbackWrapper(
     state: *ServerState,
-    request: *const server.Request,
+    request: server.Request,
     writer: server.Writer) ServerCallbackError!void
 {
     serverCallback(state, request, writer) catch |err| {
