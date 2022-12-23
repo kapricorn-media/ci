@@ -3,3 +3,5 @@ keys/
 state/
 zig-cache/
 zig-out/
+
+builds/

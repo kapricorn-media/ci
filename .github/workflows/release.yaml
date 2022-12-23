@@ -20,7 +20,7 @@ jobs:
           submodules: 'recursive'
 
       - name: build
-        run: ~/zig-stable/zig build -Drelease-fast=true -Dtarget=x86_64-linux
+        run: ~/zig-0.10.0/zig build -Drelease-fast=true -Dtarget=x86_64-linux
 
       - name: rename
         run: mv zig-out ci
