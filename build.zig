@@ -5,7 +5,7 @@ const zig_http_build = @import("deps/zig-http/build.zig");
 
 const PROJECT_NAME = "ci";
 
-pub fn build(b: *std.build.Builder) void
+pub fn build(b: *std.build.Builder) !void
 {
     const mode = b.standardReleaseOptions();
     const target = b.standardTargetOptions(.{});
@@ -14,9 +14,9 @@ pub fn build(b: *std.build.Builder) void
     server.setBuildMode(mode);
     server.setTarget(target);
     zig_bearssl_build.addLib(server, target, "deps/zig-http/deps/zig-bearssl");
-    zig_http_build.addLibClient(server, target, "deps/zig-http");
-    zig_http_build.addLibCommon(server, target, "deps/zig-http");
-    zig_http_build.addLibServer(server, target, "deps/zig-http");
+    try zig_http_build.addLibClient(server, target, "deps/zig-http");
+    try zig_http_build.addLibCommon(server, target, "deps/zig-http");
+    try zig_http_build.addLibServer(server, target, "deps/zig-http");
     server.linkLibC();
     const installDirRoot = std.build.InstallDir {
         .custom = "",
