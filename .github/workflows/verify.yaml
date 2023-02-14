@@ -12,4 +12,6 @@ on:
 
 jobs:
   verify:
-    uses: kapricorn-media/github/.github/workflows/verify-0.10.1.yaml@main
+    uses: kapricorn-media/github/.github/workflows/zig-verify.yaml@main
+    with:
+      zig-version: 0.10.1
