@@ -1,7 +1,6 @@
-.DS_Store
-keys/
-state/
 zig-cache/
 zig-out/
+.DS_Store
+*.sublime-workspace
 
 builds/

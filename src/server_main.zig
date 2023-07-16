@@ -46,15 +46,22 @@ const BuildEntry = struct {
 
     fn init(path: []const u8, allocator: Allocator) !Self
     {
-        const basename = std.fs.path.basename(path);
-        var nameSplit = std.mem.split(u8, basename, ".");
-        const project = nameSplit.next() orelse return error.NoSplitFirst;
-        const timestampString = nameSplit.next() orelse return error.NoSplitSecond;
+        const dirName = std.fs.path.dirname(path) orelse return error.BadPath;
+        const project = std.fs.path.basename(dirName);
+
+        const fileName = std.fs.path.basename(path);
+        const extIndex = std.mem.indexOf(u8, fileName, ".tar.gz") orelse return error.BadPath;
+        const fileNameNoExt = fileName[0..extIndex];
+        const dotIndex = std.mem.lastIndexOfScalar(u8, fileNameNoExt, '.') orelse return error.NoDot;
+        if (dotIndex == fileNameNoExt.len) {
+            return error.BadDot;
+        }
+        const timestampString = fileNameNoExt[dotIndex+1..];
         const timestamp = try std.fmt.parseUnsigned(u64, timestampString, 10);
 
         return Self {
             .project = try allocator.dupe(u8, project),
-            .name = try allocator.dupe(u8, basename),
+            .name = try allocator.dupe(u8, fileName),
             .timestamp = timestamp,
         };
     }
